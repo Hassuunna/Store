@@ -1,4 +1,10 @@
 import client from '../database';
+import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const { PEPPER , SALT } = process.env;
 
 export type Customer = {
   id?: number;
@@ -6,6 +12,10 @@ export type Customer = {
   lastName: string;
   password: string;
 };
+
+const hashPassword = (password: string): string => {
+  return bcrypt.hashSync(`${password}${PEPPER}`, parseInt(SALT as string, 10));
+}
 
 export class CustomerModel {
   async index(): Promise<Customer[]> {
@@ -48,7 +58,7 @@ export class CustomerModel {
       const result = await connection.query(sql, [
         firstName,
         lastName,
-        password,
+        hashPassword(password)
       ]);
       connection.release();
       return result.rows[0];
@@ -64,7 +74,11 @@ export class CustomerModel {
     try {
       const connection = await client.connect();
       const sql = 'UPDATE customers SET (firstName)=($1) (lastName)=($2) (password)=($3) WHERE id=($4) RETURNING *';
-      const result = await connection.query(sql, [customer.firstName, customer.lastName, customer.password, customer.id]);
+      const result = await connection.query(sql, [
+        customer.firstName, 
+        customer.lastName, 
+        hashPassword(customer.password), 
+        customer.id]);
       connection.release();
       return result.rows[0];
     } catch (error) {
@@ -88,4 +102,30 @@ export class CustomerModel {
     }
   }
   */
+
+  async Authenticate (firstName: string, password: string): Promise<Customer | undefined | null> {
+    try {
+      const connection = await client.connect();
+      const sql = 'SELECT password FROM customers WHERE firstName=($1)';
+      const result = await connection.query(sql, [firstName]);
+      if(result.rows.length) {
+        const {password: hashPassword} = result.rows[0];
+        const isValidPassword = bcrypt.compareSync(
+          `${password}${PEPPER}`, 
+          hashPassword
+        )
+        if(isValidPassword) {
+          const sql = 'SELECT id, firstName, lastName FROM customers WHERE firstName=($1)';
+          const customer = await connection.query(sql, [firstName]);
+          connection.release();
+          return customer.rows[0];
+        }
+      }
+      connection.release();
+      return null;       
+    } catch (error) {
+      
+    }
+  }
+  
 }
