@@ -91,7 +91,7 @@ export class CustomerModel {
   async delete(id : number): Promise<Customer[]> {
     try {
       const connection = await client.connect();
-      const sql = 'DELETE FROM customers WHERE id=($1) RETURNING *';
+      const sql = '  WHERE id=($1) RETURNING *';
       const result = await connection.query(sql, [id]);
       connection.release();
       return result.rows[0];
@@ -110,10 +110,12 @@ export class CustomerModel {
       const result = await connection.query(sql, [firstName]);
       if(result.rows.length) {
         const {password: hashPassword} = result.rows[0];
+        
         const isValidPassword = bcrypt.compareSync(
-          `${password}${PEPPER}`, 
+          `${password}${PEPPER}`,
           hashPassword
         )
+        
         if(isValidPassword) {
           const sql = 'SELECT id, firstName, lastName FROM customers WHERE firstName=($1)';
           const customer = await connection.query(sql, [firstName]);

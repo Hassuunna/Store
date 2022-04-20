@@ -2,7 +2,7 @@ import { CustomerModel, Customer } from '../models/customers';
 import express, { NextFunction, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
-
+import validateTokenMiddleware from '../middleware/Authentication'
 dotenv.config();
 
 const { JWT_TOKEN } = process.env;
@@ -45,7 +45,7 @@ const authenticate = async (req: Request, res: Response, next: NextFunction) => 
     const token = jwt.sign( {customer}, JWT_TOKEN as string )
     if (!customer) {
       return res.status(401).json({ 
-        error: "Invalid token"})
+        error: "Invalid token !!"})
     }
     return res.status(200).json({
       data: { ...customer, token},
@@ -80,7 +80,7 @@ const destroy = async (req: Request, res: Response) => {
 */
 
 const customers_routes = (app: express.Application) => {
-  app.get('/customers', index);
+  app.get('/customers', validateTokenMiddleware, index);
   app.get('/customers/:id', show);
   app.post('/customers', create);
   app.post('/customers/Authenticate', authenticate);
