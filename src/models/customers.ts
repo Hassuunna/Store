@@ -4,18 +4,19 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const { PEPPER , SALT } = process.env;
+const { PEPPER, SALT } = process.env;
 
 export type Customer = {
   id?: number;
-  firstName: string;
-  lastName: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
   password: string;
 };
 
 const hashPassword = (password: string): string => {
   return bcrypt.hashSync(`${password}${PEPPER}`, parseInt(SALT as string, 10));
-}
+};
 
 export class CustomerModel {
   async index(): Promise<Customer[]> {
@@ -32,7 +33,7 @@ export class CustomerModel {
     }
   }
 
-  async show(id: number): Promise<Customer[]> {
+  async show(id: number): Promise<Customer> {
     try {
       const connection = await client.connect();
       const sql = 'SELECT * FROM customers WHERE id=($1)';
@@ -47,18 +48,20 @@ export class CustomerModel {
   }
 
   async create(
+    email: string,
     firstName: string,
-    lastName: string,
-    password: string
-  ): Promise<Customer[]> {
+    password: string,
+    lastName?: string
+  ): Promise<Customer> {
     try {
       const connection = await client.connect();
       const sql =
-        'INSERT INTO customers (firstName, lastName, password) VALUES($1, $2, $3) RETURNING *';
+        'INSERT INTO customers (email, firstName, lastName, password) VALUES($1, $2, $3, $4) RETURNING *';
       const result = await connection.query(sql, [
+        email,
         firstName,
-        lastName,
-        hashPassword(password)
+        lastName ? lastName : '',
+        hashPassword(password),
       ]);
       connection.release();
       return result.rows[0];
@@ -69,16 +72,17 @@ export class CustomerModel {
     }
   }
 
-  /*
-  async update(customer: Customer): Promise<Customer[]> {
+  async update(customer: Customer): Promise<Customer> {
     try {
       const connection = await client.connect();
-      const sql = 'UPDATE customers SET (firstName)=($1) (lastName)=($2) (password)=($3) WHERE id=($4) RETURNING *';
+      const sql =
+        'UPDATE customers SET (firstName)=($1) (lastName)=($2) (password)=($3) WHERE id=($4) RETURNING *';
       const result = await connection.query(sql, [
-        customer.firstName, 
-        customer.lastName, 
-        hashPassword(customer.password), 
-        customer.id]);
+        customer.firstName,
+        customer.lastName,
+        hashPassword(customer.password),
+        customer.id,
+      ]);
       connection.release();
       return result.rows[0];
     } catch (error) {
@@ -88,7 +92,7 @@ export class CustomerModel {
     }
   }
 
-  async delete(id : number): Promise<Customer[]> {
+  async delete(id: number): Promise<Customer> {
     try {
       const connection = await client.connect();
       const sql = '  WHERE id=($1) RETURNING *';
@@ -101,33 +105,29 @@ export class CustomerModel {
       );
     }
   }
-  */
 
-  async Authenticate (firstName: string, password: string): Promise<Customer | undefined | null> {
+  async Authenticate(
+    email: string,
+    password: string
+  ): Promise<Customer | null> {
     try {
       const connection = await client.connect();
-      const sql = 'SELECT password FROM customers WHERE firstName=($1)';
-      const result = await connection.query(sql, [firstName]);
-      if(result.rows.length) {
-        const {password: hashPassword} = result.rows[0];
-        
-        const isValidPassword = bcrypt.compareSync(
-          `${password}${PEPPER}`,
-          hashPassword
-        )
-        
-        if(isValidPassword) {
-          const sql = 'SELECT id, firstName, lastName FROM customers WHERE firstName=($1)';
-          const customer = await connection.query(sql, [firstName]);
-          connection.release();
-          return customer.rows[0];
-        }
+      const sql = 'SELECT password FROM customers WHERE email=($1)';
+      const result = await connection.query(sql, [email]);
+      const customer = result.rows[0];
+      if (
+        customer &&
+        bcrypt.compareSync(`${password}${PEPPER}`, customer.password)
+      ) {
+        connection.release();
+        return customer;
       }
       connection.release();
-      return null;       
+      return null;
     } catch (error) {
-      
+      throw new Error(
+        `Failed to sign in as session lead with the following error: ${error}`
+      );
     }
   }
-  
 }
