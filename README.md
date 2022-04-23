@@ -1,10 +1,18 @@
-# Store 
+# Store
 
 ## how to setup and connect to the database?
-Follow ENV_EXAMPLE to make .env file with right parameters
+* Follow ENV_EXAMPLE to make .env file with right parameters
+* Create Database for development and test in CMD using following commands
+  
+  `psql -U [yourUserName]`
+
+  `CREATE DATABASE [DevelopmentDatabase]`
+  
+  `CREATE DATABASE [TestDatabase]`
 
 ## what ports the backend and database are running on
   backend in ENV_EXAMPLE
+  
   database: 5432
 
 ## package installation instructions
@@ -12,44 +20,39 @@ Follow ENV_EXAMPLE to make .env file with right parameters
 
 ## correct RESTful routes for the required endpoints
 
-``` 
-  app.get('/customers', index);
-  app.get('/customers/:id', show);
-  app.post('/customers', create);
-  app.post('/customers/login', authenticate);
-  app.put('/customers', update);
-  app.delete('/customers', destroy);
-```
-
-```
-  app.get('/orders/:id', show);
-  app.get('/orders', index);
-  app.post('/orders', create);
-  app.post('/orders/addProduct/:id', addProduct);
-  app.put('/orders', update);
-  app.delete('/orders', destroy);
-```
-```  
-  app.get('/products', index);
-  app.get('/products/:id', show);
-  app.post('/products', create);
-  app.put('/products', update);
-  app.delete('/products', destroy);
-```
-
-
+| Method | Route                 | Function     | Params | Body                                 | Return           |
+|--------:|---------------------:|-------------:|-------:|-------------------------------------:|------------------|
+| get    | /customers            | index        |        |                                      | all customers    |
+| get    | /customers/id         | show         | id     |                                      | current customer |
+| post   | /customers            | create       |        | email, firstName, lastName, password | token            |
+| post   | /customers/login      | authenticate |        | email, password                      | token            |
+| put    | /customers            | update       |        | id, password                         | updated customer |
+| delete | /customers            | destroy      |        | id                                   | deleted customer |
+| get    | /products             | index        |        |                                      | all products     |
+| get    | /products/id          | show         | id     |                                      | current product  |
+| post   | /products             | create       |        | name, price                          | token            |
+| put    | /products             | update       |        | id, price                            | updated product  |
+| delete | /products             | destroy      |        | id                                   | deleted product  |
+| get    | /orders               | index        |        |                                      | all orders       |
+| get    | /orders/id            | show         | id     |                                      | current order    |
+| post   | /orders               | create       |        |                                      | token            |
+| post   | /orders/addProduct/id | addProduct   | id     | product_id, quantity                 | token            |
+| put    | /orders               | update       |        | id, status                           | updated order    |
+| delete | /orders               | destroy      |        | id                                   | deleted order    |
+________________________________________________________________________________________________________________________
 ## DATA SHAPES
 
 ### PRODUCTS
-|       |              |             |
+| Field | DateType     | Notes       |
 |-------|--------------|-------------|
 | id    | SERIAL       | PRIMARY KEY |
 | name  | varchar(100) | NOT NULL    |
-| price | floar        | NOT NULL    |
+| price | float        | NOT NULL    |
 
+________________________________________________________________________________________________________________________
 ### Customers
 
-|           |              |                 |
+| Field     | DateType     | Notes           |
 |-----------|--------------|-----------------|
 | id        | SERIAL       | PRIMARY KEY     |
 | email     | varchar(100) | UNIQUE NOT NULL |
@@ -57,12 +60,10 @@ Follow ENV_EXAMPLE to make .env file with right parameters
 | lastName  | varchar(100) |                 |
 | password  | varchar(100) | NOT NULL        |
 
+________________________________________________________________________________________________________________________
 ### orders
-|             |              |             |                  |
+| Field       | DateType     | Notes       | Default          |
 |-------------|--------------|-------------|------------------|
 | id          | SERIAL       | PRIMARY KEY |                  |
 | customer_id | INTEGER      | REFERENCES  | customers(id)    |
 | status      | varchar(100) | NOT NULL    | DEFAULT 'active' |
-
-
-## Endpoints
