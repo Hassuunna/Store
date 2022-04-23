@@ -12,8 +12,12 @@ const index = async (req: Request, res: Response) => {
     const currentCustomers = await customers.index();
     res.send(currentCustomers);
   } catch (error) {
-    res.status(500).json({ error: error });
-  }
+    const e = error as Error;
+    if (e.message.includes('Failed to get the customer')) {
+      res.status(500).json(e.message);
+    } else {
+      res.status(401).json(e.message);
+    }  }
 };
 
 const show = async (req: Request, res: Response) => {
@@ -28,8 +32,12 @@ const show = async (req: Request, res: Response) => {
     const currentCustomer = await customers.show(id);
     res.send(currentCustomer);
   } catch (error) {
-    res.status(500).json({ error: error });
-  }
+    const e = error as Error;
+    if (e.message.includes('Failed to add the customer')) {
+      res.status(500).json(e.message);
+    } else {
+      res.status(401).json(e.message);
+    }  }
 };
 
 const create = async (req: Request, res: Response) => {
@@ -42,35 +50,44 @@ const create = async (req: Request, res: Response) => {
           'Error, missing or malformed parameters. name, email, password required'
         );
     }
-    const newCustomer = await customers.create(
+    const newCustomer = await customers.create({
       email,
       firstName,
+      password,
       lastName,
-      password
-    );
-    res.send(newCustomer);
+    });
+    const token = Sign(Number(newCustomer.id))
+    res.send(token);
   } catch (error) {
-    res.status(500).json({ error: error });
-  }
+    const e = error as Error;
+    if (e.message.includes('Failed to add the customer')) {
+      res.status(500).json(e.message);
+    } else {
+      res.status(401).json(e.message);
+    }  }
 };
 
 const update = async (req: Request, res: Response) => {
   try {
-    const { id, firstName, lastName, password } = req.body;
-    if (!id || !firstName || lastName || !password) {
+    const { id, password } = req.body;
+    if (!id || !password) {
       return res
         .status(400)
         .send(
-          'Error, missing or malformed parameters. id, firstName, lastName, password required'
+          'Error, missing or malformed parameters. id, password required'
         );
     }
-    const newCustomer: Customer = { id, firstName, lastName, password };
+    const newCustomer: Customer = { id, password };
     Verify(req, id);
     const updateCustomer = await customers.update(newCustomer);
     res.send(updateCustomer);
   } catch (error) {
-    res.status(500).json({ error: error });
-  }
+    const e = error as Error;
+    if (e.message.includes('Failed to update the customer')) {
+      res.status(500).json(e.message);
+    } else {
+      res.status(401).json(e.message);
+    }  }
 };
 
 const destroy = async (req: Request, res: Response) => {
@@ -85,14 +102,17 @@ const destroy = async (req: Request, res: Response) => {
     const deletedCustomer = await customers.delete(id);
     res.send(deletedCustomer);
   } catch (error) {
-    res.status(500).json({ error: error });
-  }
+    const e = error as Error;
+    if (e.message.includes('Failed to delete the customer')) {
+      res.status(500).json(e.message);
+    } else {
+      res.status(401).json(e.message);
+    }  }
 };
 
 const authenticate = async (
   req: Request,
   res: Response,
-  next: NextFunction
 ) => {
   const { email, password } = req.body;
   if (!email || !password) {

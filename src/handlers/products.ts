@@ -1,6 +1,6 @@
 import { ProductModel, Product } from '../models/products';
 import express, { Request, Response } from 'express';
-import { Verify } from '../middleware/auth';
+import { Verify, Sign } from '../middleware/auth';
 
 const products = new ProductModel();
 
@@ -10,7 +10,12 @@ const index = async (req: Request, res: Response) => {
     const currentProducts = await products.index();
     res.send(currentProducts);
   } catch (error) {
-    res.status(500).json({ error: error });
+    const e = error as Error;
+    if (e.message.includes('Failed to get the products')) {
+      res.status(500).json(e.message);
+    } else {
+      res.status(401).json(e.message);
+    }
   }
 };
 
@@ -26,7 +31,12 @@ const show = async (req: Request, res: Response) => {
     Verify(req, currentProduct.id);
     res.send(currentProduct);
   } catch (error) {
-    res.status(500).json({ error: error });
+    const e = error as Error;
+    if (e.message.includes('Failed to get the product')) {
+      res.status(500).json(e.message);
+    } else {
+      res.status(401).json(e.message);
+    }
   }
 };
 
@@ -40,27 +50,38 @@ const create = async (req: Request, res: Response) => {
           'Error, missing or malformed parameters. name and price required'
         );
     }
-    const newProduct = await products.create(name, price);
-    res.send(newProduct);
+    const newProduct = await products.create({name, price});
+    const token = Sign(Number(newProduct.id));
+    res.send(token);
   } catch (error) {
-    res.status(500).json({ error: error });
+    const e = error as Error;
+    if (e.message.includes('Failed to add')) {
+      res.status(500).json(e.message);
+    } else {
+      res.status(401).json(e.message);
+    }
   }
 };
 
 const update = async (req: Request, res: Response) => {
   try {
-    const { id, name, price } = req.body;
-    if (!id || !name || !price) {
+    const { id, price } = req.body;
+    if (!id || !price) {
       return res
         .status(400)
         .send('Error, missing or malformed parameters. id required');
     }
     Verify(req, id);
-    const newProduct: Product = { id, name, price };
+    const newProduct: Product = { id, price };
     const updateProduct = await products.update(newProduct);
     res.send(updateProduct);
   } catch (error) {
-    res.status(500).json({ error: error });
+    const e = error as Error;
+    if (e.message.includes('Failed to update')) {
+      res.status(500).json(e.message);
+    } else {
+      res.status(401).json(e.message);
+    }
   }
 };
 
@@ -76,7 +97,12 @@ const destroy = async (req: Request, res: Response) => {
     Verify(req, deletedProduct.id);
     res.send(deletedProduct);
   } catch (error) {
-    res.status(500).json({ error: error });
+    const e = error as Error;
+    if (e.message.includes('Failed to delete the product')) {
+      res.status(500).json(e.message);
+    } else {
+      res.status(401).json(e.message);
+    }
   }
 };
 

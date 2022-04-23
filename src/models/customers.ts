@@ -42,32 +42,28 @@ export class CustomerModel {
       return result.rows[0];
     } catch (error) {
       throw new Error(
-        `Failed to get the customers with the following error: ${error}`
+        `Failed to get the customer with the following error: ${error}`
       );
     }
   }
 
-  async create(
-    email: string,
-    firstName: string,
-    password: string,
-    lastName?: string
+  async create(customer: Customer
   ): Promise<Customer> {
     try {
       const connection = await client.connect();
       const sql =
-        'INSERT INTO customers (email, firstName, lastName, password) VALUES($1, $2, $3, $4) RETURNING *';
+        'INSERT INTO customers (email, firstName, password, lastName) VALUES($1, $2, $3, $4) RETURNING *';
       const result = await connection.query(sql, [
-        email,
-        firstName,
-        lastName ? lastName : '',
-        hashPassword(password),
+        customer.email,
+        customer.firstName,
+        hashPassword(customer.password),
+        customer.lastName ? customer.lastName : '',
       ]);
       connection.release();
       return result.rows[0];
     } catch (error) {
       throw new Error(
-        `Failed to add customer with the following error: ${error}`
+        `Failed to add the customer with the following error: ${error}`
       );
     }
   }
@@ -76,18 +72,16 @@ export class CustomerModel {
     try {
       const connection = await client.connect();
       const sql =
-        'UPDATE customers SET (firstName)=($1) (lastName)=($2) (password)=($3) WHERE id=($4) RETURNING *';
+        'UPDATE customers SET password=($1) WHERE id=($2) RETURNING *';
       const result = await connection.query(sql, [
-        customer.firstName,
-        customer.lastName,
         hashPassword(customer.password),
         customer.id,
-      ]);
+      ]);      
       connection.release();
       return result.rows[0];
     } catch (error) {
       throw new Error(
-        `Failed to update customer with the following error: ${error}`
+        `Failed to update the customer with the following error: ${error}`
       );
     }
   }
@@ -95,13 +89,13 @@ export class CustomerModel {
   async delete(id: number): Promise<Customer> {
     try {
       const connection = await client.connect();
-      const sql = '  WHERE id=($1) RETURNING *';
+      const sql = 'DELETE FROM customers WHERE id=($1) RETURNING *';
       const result = await connection.query(sql, [id]);
       connection.release();
       return result.rows[0];
     } catch (error) {
       throw new Error(
-        `Failed to delete customer with the following error: ${error}`
+        `Failed to delete the customer with the following error: ${error}`
       );
     }
   }

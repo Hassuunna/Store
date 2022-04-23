@@ -4,7 +4,7 @@ import { Product } from './products';
 export type Order = {
   id?: number;
   customer_id?: number;
-  status?: boolean;
+  status?: string;
 };
 
 export class OrderModel {
@@ -36,12 +36,12 @@ export class OrderModel {
     }
   }
 
-  async create(customer_id: number, status: string): Promise<Order> {
+  async create(order: Order): Promise<Order> {
     try {
-      const connection = await client.connect();
+      const connection = await client.connect();      
       const sql =
-        'INSERT INTO orders (customer_id, status) VALUES ($1, $2) RETURNING *';
-      const result = await connection.query(sql, [customer_id, status]);
+      'INSERT INTO orders (customer_id, status) VALUES ($1, $2) RETURNING *';
+      const result = await connection.query(sql, [order.customer_id, order.status]);
       connection.release();
       return result.rows[0];
     } catch (error) {
@@ -52,7 +52,7 @@ export class OrderModel {
   async update(order: Order): Promise<Order> {
     try {
       const connection = await client.connect();
-      const sql = 'UPDATE orders SET (status)=($1) WHERE id=($2) RETURNING *';
+      const sql = 'UPDATE orders SET status=($1) WHERE id=($2) RETURNING *';
       const result = await connection.query(sql, [order.status, order.id]);
       connection.release();
       return result.rows[0];

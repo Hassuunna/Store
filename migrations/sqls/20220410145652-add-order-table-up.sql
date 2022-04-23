@@ -1,5 +1,5 @@
 create table orders (
     id SERIAL PRIMARY KEY,
-    customer_id integer references customers(id) on delete cascade on update cascade, 
-    status boolean default false
+    customer_id INTEGER REFERENCES customers(id) ON DELETE CASCADE, 
+    status VARCHAR (255) NOT NULL DEFAULT 'active'
 );

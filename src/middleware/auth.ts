@@ -3,7 +3,6 @@ import { verify, JwtPayload, sign } from 'jsonwebtoken';
 
 // The token secret saved in our env variable
 const secretToken = process.env.JWT_SECRET as string; 
-console.log(secretToken);
 
 function Verify(req: Request, userId?: number) {
   // Bearer token ex: bearer eyJhbGciOiJIUz...

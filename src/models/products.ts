@@ -2,7 +2,7 @@ import client from '../database';
 
 export type Product = {
   id?: number;
-  name: string;
+  name?: string;
   price: number;
 };
 
@@ -30,22 +30,22 @@ export class ProductModel {
       return result.rows[0];
     } catch (error) {
       throw new Error(
-        `Failed to get the products with the following error: ${error}`
+        `Failed to get the product with the following error: ${error}`
       );
     }
   }
 
-  async create(name: string, price: number): Promise<Product> {
+  async create(product: Product): Promise<Product> {
     try {
       const connection = await client.connect();
       const sql =
         'INSERT INTO products (name, price) VALUES ($1, $2) RETURNING *';
-      const result = await connection.query(sql, [name, price]);
+      const result = await connection.query(sql, [product.name, product.price]);
       connection.release();
       return result.rows[0];
     } catch (error) {
       throw new Error(
-        `Failed to add product with the following error: ${error}`
+        `Failed to add the product with the following error: ${error}`
       );
     }
   }
@@ -54,9 +54,8 @@ export class ProductModel {
     try {
       const connection = await client.connect();
       const sql =
-        'UPDATE products SET (name)=($1) (price)=($2) WHERE id=($3) RETURNING *';
+        'UPDATE products SET price=($1) WHERE id=($2) RETURNING *';
       const result = await connection.query(sql, [
-        product.name,
         product.price,
         product.id,
       ]);
@@ -64,7 +63,7 @@ export class ProductModel {
       return result.rows[0];
     } catch (error) {
       throw new Error(
-        `Failed to update product with the following error: ${error}`
+        `Failed to update the product with the following error: ${error}`
       );
     }
   }
@@ -78,7 +77,7 @@ export class ProductModel {
       return result.rows[0];
     } catch (error) {
       throw new Error(
-        `Failed to delete product with the following error: ${error}`
+        `Failed to delete the product with the following error: ${error}`
       );
     }
   }

@@ -6,10 +6,10 @@ import { Customer } from '../../models/customers';
 const request = supertest(app);
 describe('Testing Endpoint: /customers', () => {
   const customer: Customer = {
-    firstName: 'ATD',
-    lastName: 'Dummy',
     email: 'ATD@Dummy.com',
+    firstName: 'ATD',
     password: 'Password',
+    lastName: 'Dummy',
   };
   let token: string;
   let userId: string;
@@ -27,7 +27,6 @@ describe('Testing Endpoint: /customers', () => {
         userId = decodedJWT.user.userId;
       });
   });
-
   it('Testing the index endpoint with valid token', async () => {
     await request
       .get('/customers')

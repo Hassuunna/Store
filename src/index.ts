@@ -15,8 +15,8 @@ products_routes(app);
 customers_routes(app);
 orders_routes(app);
 
-app.listen('3000', () => {
-  console.log('Server started');
+app.listen(process.env.SERVER_PORT, () => {
+  console.log(`Server started on ${process.env.SERVER_PORT}`);
 });
 
 export default app;
