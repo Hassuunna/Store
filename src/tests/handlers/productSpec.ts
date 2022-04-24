@@ -6,8 +6,8 @@ import { Product } from '../../models/products';
 const request = supertest(app);
 describe('Testing Endpoint: /products', () => {
   const product: Product = {
-    name: "chipsy",
-    price: 10
+    name: 'chipsy',
+    price: 10,
   };
   let token: string;
   let productId: string;

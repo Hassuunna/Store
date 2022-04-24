@@ -7,11 +7,10 @@ import { Customer } from '../../models/customers';
 
 const request = supertest(app);
 describe('Testing Endpoint: /orders', () => {
-
   const product: Product = {
     name: 'chocolate',
-    price: 20
-  }
+    price: 20,
+  };
   const order: Order = {
     status: 'active',
   };
@@ -20,7 +19,7 @@ describe('Testing Endpoint: /orders', () => {
     firstName: 'ATD',
     password: 'Password',
     lastName: 'Dummy',
-  }
+  };
 
   let token: string;
   let customerId: string;
@@ -28,7 +27,6 @@ describe('Testing Endpoint: /orders', () => {
   let productId: string;
 
   beforeAll(async () => {
-    
     await request
       .post('/customers')
       .send(customer)
@@ -42,7 +40,7 @@ describe('Testing Endpoint: /orders', () => {
         customerId = decodedJWT.user.userId;
         order.customer_id = Number(customerId);
       });
-      await request
+    await request
       .post('/products')
       .send(product)
       .expect(200)
@@ -68,7 +66,6 @@ describe('Testing Endpoint: /orders', () => {
           process.env.JWT_SECRET as string
         ) as JwtPayload;
         orderId = decodedJWT.user.userId;
-        
       });
   });
   it('Testing the index endpoint with valid token', async () => {

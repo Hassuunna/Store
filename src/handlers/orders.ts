@@ -43,14 +43,14 @@ const show = async (req: Request, res: Response) => {
 const create = async (req: Request, res: Response) => {
   try {
     const { customer_id, status } = req.body;
-    if (!customer_id || !status) {      
+    if (!customer_id || !status) {
       return res
         .status(400)
         .send(
           'Error, missing or malformed parameters. customer_id and status required'
         );
     }
-    const newOrder = await orders.create({customer_id, status});
+    const newOrder = await orders.create({ customer_id, status });
     const token = Sign(Number(newOrder.id));
     res.send(token);
   } catch (error) {

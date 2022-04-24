@@ -14,7 +14,7 @@ export type Customer = {
   password: string;
 };
 
-const hashPassword = (password: string): string => {
+export const hashPassword = (password: string): string => {
   return bcrypt.hashSync(`${password}${PEPPER}`, parseInt(SALT as string, 10));
 };
 
@@ -47,8 +47,7 @@ export class CustomerModel {
     }
   }
 
-  async create(customer: Customer
-  ): Promise<Customer> {
+  async create(customer: Customer): Promise<Customer> {
     try {
       const connection = await client.connect();
       const sql =
@@ -76,7 +75,7 @@ export class CustomerModel {
       const result = await connection.query(sql, [
         hashPassword(customer.password),
         customer.id,
-      ]);      
+      ]);
       connection.release();
       return result.rows[0];
     } catch (error) {

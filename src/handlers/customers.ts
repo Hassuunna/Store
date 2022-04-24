@@ -1,5 +1,5 @@
 import { CustomerModel, Customer } from '../models/customers';
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { Sign, Verify } from '../middleware/auth';
 dotenv.config();
@@ -17,7 +17,8 @@ const index = async (req: Request, res: Response) => {
       res.status(500).json(e.message);
     } else {
       res.status(401).json(e.message);
-    }  }
+    }
+  }
 };
 
 const show = async (req: Request, res: Response) => {
@@ -37,7 +38,8 @@ const show = async (req: Request, res: Response) => {
       res.status(500).json(e.message);
     } else {
       res.status(401).json(e.message);
-    }  }
+    }
+  }
 };
 
 const create = async (req: Request, res: Response) => {
@@ -56,7 +58,7 @@ const create = async (req: Request, res: Response) => {
       password,
       lastName,
     });
-    const token = Sign(Number(newCustomer.id))
+    const token = Sign(Number(newCustomer.id));
     res.send(token);
   } catch (error) {
     const e = error as Error;
@@ -64,7 +66,8 @@ const create = async (req: Request, res: Response) => {
       res.status(500).json(e.message);
     } else {
       res.status(401).json(e.message);
-    }  }
+    }
+  }
 };
 
 const update = async (req: Request, res: Response) => {
@@ -73,9 +76,7 @@ const update = async (req: Request, res: Response) => {
     if (!id || !password) {
       return res
         .status(400)
-        .send(
-          'Error, missing or malformed parameters. id, password required'
-        );
+        .send('Error, missing or malformed parameters. id, password required');
     }
     const newCustomer: Customer = { id, password };
     Verify(req, id);
@@ -87,7 +88,8 @@ const update = async (req: Request, res: Response) => {
       res.status(500).json(e.message);
     } else {
       res.status(401).json(e.message);
-    }  }
+    }
+  }
 };
 
 const destroy = async (req: Request, res: Response) => {
@@ -107,13 +109,11 @@ const destroy = async (req: Request, res: Response) => {
       res.status(500).json(e.message);
     } else {
       res.status(401).json(e.message);
-    }  }
+    }
+  }
 };
 
-const authenticate = async (
-  req: Request,
-  res: Response,
-) => {
+const authenticate = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res

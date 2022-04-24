@@ -50,7 +50,7 @@ const create = async (req: Request, res: Response) => {
           'Error, missing or malformed parameters. name and price required'
         );
     }
-    const newProduct = await products.create({name, price});
+    const newProduct = await products.create({ name, price });
     const token = Sign(Number(newProduct.id));
     res.send(token);
   } catch (error) {

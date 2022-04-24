@@ -1,5 +1,4 @@
 import client from '../database';
-import { Product } from './products';
 
 export type Order = {
   id?: number;
@@ -38,10 +37,13 @@ export class OrderModel {
 
   async create(order: Order): Promise<Order> {
     try {
-      const connection = await client.connect();      
+      const connection = await client.connect();
       const sql =
-      'INSERT INTO orders (customer_id, status) VALUES ($1, $2) RETURNING *';
-      const result = await connection.query(sql, [order.customer_id, order.status]);
+        'INSERT INTO orders (customer_id, status) VALUES ($1, $2) RETURNING *';
+      const result = await connection.query(sql, [
+        order.customer_id,
+        order.status,
+      ]);
       connection.release();
       return result.rows[0];
     } catch (error) {
