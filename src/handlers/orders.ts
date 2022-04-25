@@ -108,9 +108,9 @@ const addProduct = async (req: Request, res: Response) => {
   try {
     const order_id = Number(req.params.id);
     const { product_id, quantity } = req.body;
+    Verify(req);
     const newOrder = await orders.addProduct(order_id, product_id, quantity);
-    const token = Sign(Number(newOrder.id));
-    res.send(token);
+    res.send(newOrder);
   } catch (error) {
     const e = error as Error;
     if (e.message.includes('Failed to add product')) {

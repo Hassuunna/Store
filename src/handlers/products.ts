@@ -48,9 +48,9 @@ const create = async (req: Request, res: Response) => {
           'Error, missing or malformed parameters. name and price required'
         );
     }
+    Verify(req);
     const newProduct = await products.create({ name, price });
-    const token = Sign(Number(newProduct.id));
-    res.send(token);
+    res.send(newProduct);
   } catch (error) {
     const e = error as Error;
     if (e.message.includes('Failed to add')) {
