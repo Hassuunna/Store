@@ -4,9 +4,8 @@ import { Verify, Sign } from '../middleware/auth';
 
 const products = new ProductModel();
 
-const index = async (req: Request, res: Response) => {
+const index = async (_req: Request, res: Response) => {
   try {
-    Verify(req);
     const currentProducts = await products.index();
     res.send(currentProducts);
   } catch (error) {
@@ -28,7 +27,6 @@ const show = async (req: Request, res: Response) => {
         .send('Error, missing or malformed parameters. id required');
     }
     const currentProduct = await products.show(id);
-    Verify(req, currentProduct.id);
     res.send(currentProduct);
   } catch (error) {
     const e = error as Error;

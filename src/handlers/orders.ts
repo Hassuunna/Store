@@ -50,9 +50,9 @@ const create = async (req: Request, res: Response) => {
           'Error, missing or malformed parameters. customer_id and status required'
         );
     }
+    Verify(req, customer_id);
     const newOrder = await orders.create({ customer_id, status });
-    const token = Sign(Number(newOrder.id));
-    res.send(token);
+    res.send(newOrder);
   } catch (error) {
     const e = error as Error;
     if (e.message.includes('Failed to add')) {

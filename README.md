@@ -35,7 +35,7 @@
 | delete | /products             | destroy      |        | id                                   | deleted product  |
 | get    | /orders               | index        |        |                                      | all orders       |
 | get    | /orders/id            | show         | id     |                                      | current order    |
-| post   | /orders               | create       |        |                                      | token            |
+| post   | /orders               | create       |        |                                      | order created    |
 | post   | /orders/addProduct/id | addProduct   | id     | product_id, quantity                 | token            |
 | put    | /orders               | update       |        | id, status                           | updated order    |
 | delete | /orders               | destroy      |        | id                                   | deleted order    |
